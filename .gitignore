@@ -38,7 +38,6 @@ fastlane/test_output
 *.lock
 *.lock.yaml
 *.hmap
-*.plist
 *.dSYM
 *.app
 *.ipa

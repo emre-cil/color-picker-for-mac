@@ -29,9 +29,22 @@
 		5383D7E32CB86438000AF04E /* color-picker-for-macUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "color-picker-for-macUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		5383D82B2CB86877000AF04E /* Exceptions for "color-picker-for-mac" folder in "color-picker-for-mac" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 5383D7C72CB86437000AF04E /* color-picker-for-mac */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		5383D7CA2CB86437000AF04E /* color-picker-for-mac */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				5383D82B2CB86877000AF04E /* Exceptions for "color-picker-for-mac" folder in "color-picker-for-mac" target */,
+			);
 			path = "color-picker-for-mac";
 			sourceTree = "<group>";
 		};
@@ -401,6 +414,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "color-picker-for-mac/Info.plist";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -428,6 +442,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "color-picker-for-mac/Info.plist";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
