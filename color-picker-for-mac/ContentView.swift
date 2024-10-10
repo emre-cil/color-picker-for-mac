@@ -2,101 +2,82 @@ import SwiftUI
 import AppKit
 
 struct ContentView: View {
-    @State private var colorHex: String = "Press Command + Option + P"
-    @State private var color: Color = .white
-    @State private var isPickingColor: Bool = false
-    @State private var hexWindow: NSWindow? // Using @State to allow mutation
+    @State private var x: CGFloat = 0
+    @State private var y: CGFloat = 0
+    @State private var color: NSColor = .clear
 
     var body: some View {
         VStack {
-            Text(colorHex)
-                .padding()
+            Text("X: \(x)")
+                .foregroundColor(.red)
+            Text("Y: \(y)")
+                .foregroundColor(.red)
+            Text("Color: \(color.toHexString())")
+                .foregroundColor(Color(color))
             Rectangle()
-                .fill(color)
-                .frame(width: 100, height: 100)
-            Button("Pick Color") {
-                startColorPicking()
-            }
-            .keyboardShortcut("P", modifiers: [.command, .option])
-            .hidden() // Hide the button as we don't need it visible
+                .fill(Color(color))
+                .frame(width: 50, height: 50)
+                .border(Color.black, width: 1)
         }
-        .onChange(of: isPickingColor) { newValue in
-            if newValue {
-                NSCursor.crosshair.set()
-                createHexWindow()
-            } else {
-                NSCursor.arrow.set()
-                hexWindow?.close()
-                hexWindow = nil
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.white)
+        .onAppear {
+            GlobalMouseTracker.shared.startTracking { location in
+                self.x = location.x
+                self.y = location.y
+                self.color = GlobalMouseTracker.shared.getColor(at: location)
             }
         }
-    }
-
-    func startColorPicking() {
-        isPickingColor = true
-        NSEvent.addGlobalMonitorForEvents(matching: .mouseMoved) { _ in
-            let mouseLocation = NSEvent.mouseLocation
-            if let color = getColor(at: mouseLocation) {
-                self.color = Color(nsColor: color)
-                self.colorHex = color.hexString
-                updateHexWindow(with: color.hexString, at: mouseLocation)
-            }
+        .onDisappear {
+            GlobalMouseTracker.shared.stopTracking()
         }
-    }
-
-    func stopColorPicking() {
-        isPickingColor = false
-        NSEvent.removeMonitor(self)
-    }
-
-    func getColor(at location: NSPoint) -> NSColor? {
-        guard let screen = NSScreen.main else { return nil }
-        let screenHeight = screen.frame.height
-        let adjustedLocation = NSPoint(x: location.x, y: screenHeight - location.y)
-        let image = CGWindowListCreateImage(CGRect(origin: adjustedLocation, size: CGSize(width: 1, height: 1)), .optionOnScreenOnly, kCGNullWindowID, .bestResolution)
-        guard let cgImage = image else { return nil }
-        let bitmap = NSBitmapImageRep(cgImage: cgImage)
-        let color = bitmap.colorAt(x: 0, y: 0)
-        return color
-    }
-
-    func createHexWindow() {
-        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 100, height: 50),
-                              styleMask: [.borderless],
-                              backing: .buffered,
-                              defer: false)
-        window.level = .floating
-        window.isOpaque = false
-        window.backgroundColor = .clear
-
-        let textField = NSTextField(labelWithString: "")
-        textField.frame = window.contentView!.bounds
-        textField.alignment = .center
-        textField.textColor = .white
-        textField.backgroundColor = .black
-        textField.isBezeled = false
-        textField.drawsBackground = true
-
-        window.contentView?.addSubview(textField)
-        window.makeKeyAndOrderFront(nil)
-        hexWindow = window // This should work now
-    }
-
-    func updateHexWindow(with hex: String, at location: NSPoint) {
-        guard let window = hexWindow, let textField = window.contentView?.subviews.first as? NSTextField else { return }
-        textField.stringValue = hex
-        let screenHeight = NSScreen.main?.frame.height ?? 0
-        // Position the window just above the cursor
-        window.setFrameTopLeftPoint(NSPoint(x: location.x + 10, y: screenHeight - location.y - 10))
     }
 }
 
 extension NSColor {
-    var hexString: String {
-        let red = Int(round(self.redComponent * 0xFF))
-        let green = Int(round(self.greenComponent * 0xFF))
-        let blue = Int(round(self.blueComponent * 0xFF))
+    func toHexString() -> String {
+        guard let rgbColor = usingColorSpace(.deviceRGB) else { return "#000000" }
+        let red = Int(rgbColor.redComponent * 255)
+        let green = Int(rgbColor.greenComponent * 255)
+        let blue = Int(rgbColor.blueComponent * 255)
         return String(format: "#%02X%02X%02X", red, green, blue)
+    }
+}
+
+class GlobalMouseTracker {
+    static let shared = GlobalMouseTracker()
+    private var monitor: Any?
+    private var trackingHandler: ((CGPoint) -> Void)?
+
+    private init() {}
+
+    func startTracking(handler: @escaping (CGPoint) -> Void) {
+        self.trackingHandler = handler
+        self.monitor = NSEvent.addGlobalMonitorForEvents(matching: .mouseMoved) { [weak self] event in
+            guard let self = self else { return }
+            let location = NSEvent.mouseLocation
+            self.trackingHandler?(location)
+        }
+    }
+
+    func stopTracking() {
+        if let monitor = self.monitor {
+            NSEvent.removeMonitor(monitor)
+            self.monitor = nil
+        }
+    }
+
+    func getColor(at location: CGPoint) -> NSColor {
+        let screenHeight = NSScreen.main!.frame.height
+        let captureRect = CGRect(x: location.x, y: screenHeight - location.y, width: 1, height: 1)
+        guard let image = CGWindowListCreateImage(captureRect, .optionOnScreenOnly, kCGNullWindowID, .bestResolution) else {
+            return .clear
+        }
+        let bitmap = NSBitmapImageRep(cgImage: image)
+        guard let color = bitmap.colorAt(x: 0, y: 0) else {
+            return .clear
+        }
+        return color
     }
 }
 
