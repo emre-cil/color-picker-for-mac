@@ -1,0 +1,53 @@
+# Build artifacts
+build/
+DerivedData/
+*.xcuserstate
+*.xcworkspace
+
+# Swift package manager
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/xcuserdata/*.xcuserdatad/
+
+# User-specific files
+*.user
+*.userprefs
+*.swp
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# Carthage
+Carthage/Build/
+Carthage/Checkouts/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Archives
+*.xcarchive
+
+# Other
+*.DS_Store
+*.swp
+*.lock
+*.lock.yaml
+*.hmap
+*.plist
+*.dSYM
+*.app
+*.ipa
+*.apk
+
+# SwiftUI specific files (optional)
+*.swiftmodule
+*.swiftdoc
+
+# MacOS specific
+*.log
+*.log.*
